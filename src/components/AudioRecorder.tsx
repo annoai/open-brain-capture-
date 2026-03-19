@@ -22,30 +22,55 @@ import { useEffect, useRef, useState } from 'react'
 //   both approaches ultimately call onTranscript(text).
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Minimal SpeechRecognition interfaces — defined here so the build doesn't
+// depend on which TypeScript DOM lib version is present in the environment.
+interface ISpeechRecognitionResult {
+  isFinal: boolean
+  0: { transcript: string }
+}
+
+interface ISpeechRecognitionEvent extends Event {
+  resultIndex: number
+  results: { length: number } & Record<number, ISpeechRecognitionResult>
+}
+
+interface ISpeechRecognition extends EventTarget {
+  continuous: boolean
+  interimResults: boolean
+  lang: string
+  start(): void
+  stop(): void
+  onresult: ((event: ISpeechRecognitionEvent) => void) | null
+  onerror: ((event: Event) => void) | null
+  onend: (() => void) | null
+}
+
+interface ISpeechRecognitionConstructor {
+  new (): ISpeechRecognition
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition?: ISpeechRecognitionConstructor
+    webkitSpeechRecognition?: ISpeechRecognitionConstructor
+  }
+}
+
+function getSpeechRecognition(): ISpeechRecognitionConstructor | null {
+  return window.SpeechRecognition ?? window.webkitSpeechRecognition ?? null
+}
+
 interface Props {
   onTranscript: (text: string) => void
   disabled?: boolean
 }
 
-// Augment window type for browser SpeechRecognition
-declare global {
-  interface Window {
-    SpeechRecognition?: new () => SpeechRecognition
-    webkitSpeechRecognition?: new () => SpeechRecognition
-  }
-}
-
-function getSpeechRecognition(): (new () => SpeechRecognition) | null {
-  return window.SpeechRecognition ?? window.webkitSpeechRecognition ?? null
-}
-
 export function AudioRecorder({ onTranscript, disabled }: Props) {
-  const [supported]  = useState(() => getSpeechRecognition() !== null)
+  const [supported]            = useState(() => getSpeechRecognition() !== null)
   const [recording, setRecording] = useState(false)
   const [interim, setInterim]     = useState('')
-  const recogRef = useRef<SpeechRecognition | null>(null)
+  const recogRef = useRef<ISpeechRecognition | null>(null)
 
-  // Clean up on unmount
   useEffect(() => () => { recogRef.current?.stop() }, [])
 
   const startRecording = () => {
@@ -57,8 +82,8 @@ export function AudioRecorder({ onTranscript, disabled }: Props) {
     recog.interimResults = true
     recog.lang           = navigator.language || 'en-US'
 
-    recog.onresult = (e: SpeechRecognitionEvent) => {
-      let finalChunk = ''
+    recog.onresult = (e: ISpeechRecognitionEvent) => {
+      let finalChunk  = ''
       let interimChunk = ''
 
       for (let i = e.resultIndex; i < e.results.length; i++) {
@@ -107,35 +132,29 @@ export function AudioRecorder({ onTranscript, disabled }: Props) {
 
   return (
     <div className="recorder">
-      {recording
-        ? (
-          <button
-            type="button"
-            className="btn-record recording"
-            onClick={stopRecording}
-            disabled={disabled}
-          >
-            <span className="dot" />
-            Stop
-          </button>
-        )
-        : (
-          <button
-            type="button"
-            className="btn-record"
-            onClick={startRecording}
-            disabled={disabled}
-          >
-            🎙 Record
-          </button>
-        )
-      }
+      {recording ? (
+        <button
+          type="button"
+          className="btn-record recording"
+          onClick={stopRecording}
+          disabled={disabled}
+        >
+          <span className="dot" />
+          Stop
+        </button>
+      ) : (
+        <button
+          type="button"
+          className="btn-record"
+          onClick={startRecording}
+          disabled={disabled}
+        >
+          🎙 Record
+        </button>
+      )}
 
       <span className={`recorder-status${recording ? ' listening' : ''}`}>
-        {recording
-          ? (interim ? interim : 'Listening…')
-          : 'Tap to dictate'
-        }
+        {recording ? (interim ? interim : 'Listening…') : 'Tap to dictate'}
       </span>
     </div>
   )
