@@ -51,6 +51,8 @@ export default async function handler(req, res) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        // MCP StreamableHTTPTransport requires both content types in Accept
+        'Accept': 'application/json, text/event-stream',
         'x-brain-key': accessKey,
       },
       body: JSON.stringify(mcpPayload),

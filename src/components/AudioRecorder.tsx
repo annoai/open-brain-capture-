@@ -78,12 +78,15 @@ export function AudioRecorder({ onTranscript, disabled }: Props) {
     if (!SR) return
 
     const recog = new SR()
-    recog.continuous     = true
+    // Non-continuous: captures one phrase then stops automatically.
+    // This avoids the runaway duplication that happens in continuous mode
+    // on mobile Chrome, where interim results fire repeatedly.
+    recog.continuous     = false
     recog.interimResults = true
     recog.lang           = navigator.language || 'en-US'
 
     recog.onresult = (e: ISpeechRecognitionEvent) => {
-      let finalChunk  = ''
+      let finalChunk   = ''
       let interimChunk = ''
 
       for (let i = e.resultIndex; i < e.results.length; i++) {
@@ -104,6 +107,7 @@ export function AudioRecorder({ onTranscript, disabled }: Props) {
       setInterim('')
     }
 
+    // Non-continuous mode fires onend automatically after the phrase finalises
     recog.onend = () => {
       setRecording(false)
       setInterim('')
