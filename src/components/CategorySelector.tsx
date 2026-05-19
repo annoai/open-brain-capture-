@@ -8,6 +8,7 @@ const CATEGORIES = [
   { value: 'idea',        label: 'Idea' },
   { value: 'reference',   label: 'Reference' },
   { value: 'person_note', label: 'Person note' },
+  { value: 'progress_tracker', label: 'Progress tracker' },
 ]
 
 interface Props {
