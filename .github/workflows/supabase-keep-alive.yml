@@ -1,0 +1,26 @@
+name: Keep Supabase Projects Active
+
+on:
+  schedule:
+    # Monday and Thursday at 06:00 UTC / 08:00 South African time
+    - cron: '0 6 * * 1,4'
+
+  # Allows you to run it manually from GitHub for testing
+  workflow_dispatch:
+
+jobs:
+  ping-supabase-projects:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ping Open Brain Supabase project
+        run: |
+          curl --fail --silent --show-error \
+            "${{ secrets.OPEN_BRAIN_SUPABASE_URL }}/rest/v1/keep_alive?select=id&limit=1" \
+            -H "apikey: ${{ secrets.OPEN_BRAIN_SUPABASE_KEY }}"
+
+      - name: Ping Profile Sync Hub Supabase project
+        run: |
+          curl --fail --silent --show-error \
+            "${{ secrets.PROFILE_SYNC_HUB_SUPABASE_URL }}/rest/v1/keep_alive?select=id&limit=1" \
+            -H "apikey: ${{ secrets.PROFILE_SYNC_HUB_SUPABASE_KEY }}"
