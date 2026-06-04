@@ -27,11 +27,10 @@ export default function App() {
     const trimmed = text.trim()
     if (!trimmed) return
 
-    // Build the content string. Tags and category are appended as plain text
-    // so the backend's AI metadata extractor can pick them up naturally.
+    // Build the content string. Category is appended as plain text
+    // so the backend's AI metadata extractor can pick it up naturally.
     let content = trimmed
     if (category) content += `\n\nCategory: ${category}`
-    if (tags) content += `\nTags: ${tags}`
 
     setStatus({ type: 'loading' })
     const result = await captureThought(content)
@@ -49,7 +48,7 @@ export default function App() {
   }
 
   const isSaving = status.type === 'loading'
-  const canSave  = text.trim().length > 0 && !isSaving
+  const canSave = text.trim().length > 0 && !isSaving
 
   return (
     <main className="app">
