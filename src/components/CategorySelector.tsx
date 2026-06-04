@@ -3,11 +3,9 @@
 // gets a hint — it will still auto-classify, but this nudges it.
 const CATEGORIES = [
   { value: '',            label: 'Auto-detect' },
-  { value: 'observation', label: 'Observation' },
-  { value: 'task',        label: 'Task' },
-  { value: 'idea',        label: 'Idea' },
-  { value: 'reference',   label: 'Reference' },
-  { value: 'person_note', label: 'Person note' },
+  { value: 'observation', label: 'Daily log' },
+  { value: 'task',        label: 'Daily priority' },
+  { value: 'idea',        label: 'Taks' },
   { value: 'progress_tracker', label: 'Progress tracker' },
 ]
 
