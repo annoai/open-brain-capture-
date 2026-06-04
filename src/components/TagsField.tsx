@@ -12,7 +12,7 @@ export function TagsField({ value, onChange, disabled }: Props) {
         id="tags"
         type="text"
         className="field-input"
-        placeholder="work, progress tracker, idea, follow-up…"
+        placeholder="progress tracker, daily log, daily priority…"
         value={value}
         onChange={e => onChange(e.target.value)}
         disabled={disabled}
